@@ -1,0 +1,10 @@
+flask
+scikit-learn
+pandas
+numpy
+joblib
+google-generativeai
+python-dotenv
+Flask-SQLAlchemy
+Flask-Login
+gunicorn

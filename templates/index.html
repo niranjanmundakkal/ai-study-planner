@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Planner & Burnout Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Top Nav with Auth -->
+    <nav class="top-nav">
+        <h1>AI-Powered Study Planner</h1>
+        <div id="auth-controls" class="auth-controls">
+            <button id="btn-show-login" class="btn btn-secondary">Log In</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header>
+            <p>Predict student burnout risk using an advanced Random Forest algorithm</p>
+        </header>
+
+        <div class="app-grid">
+            <!-- Form Section -->
+            <section class="card form-section glass-panel">
+                <h2><i class="fa-solid fa-chart-line"></i> Academic & Behavioral Input</h2>
+                <form id="prediction-form">
+                    
+                    <div class="input-group">
+                        <label for="study_hours_per_week">Study Hours (per week)</label>
+                        <div class="slider-container">
+                            <input type="range" id="study_hours_per_week" name="study_hours_per_week" min="0" max="60" value="20" class="styled-slider">
+                            <span class="value-display">20 hrs</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="sleep_hours_per_night">Sleep Hours (per night)</label>
+                        <div class="slider-container">
+                            <input type="range" id="sleep_hours_per_night" name="sleep_hours_per_night" min="2" max="14" value="7" class="styled-slider">
+                            <span class="value-display">7 hrs</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="extracurricular_hours_per_week">Extracurricular Hours (per week)</label>
+                        <div class="slider-container">
+                            <input type="range" id="extracurricular_hours_per_week" name="extracurricular_hours_per_week" min="0" max="40" value="5" class="styled-slider">
+                            <span class="value-display">5 hrs</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="attendance_percentage">Class Attendance (%)</label>
+                        <div class="slider-container">
+                            <input type="range" id="attendance_percentage" name="attendance_percentage" min="0" max="100" value="85" class="styled-slider">
+                            <span class="value-display">85%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="midterm_score">Latest Midterm Score (out of 100)</label>
+                        <div class="slider-container">
+                            <input type="range" id="midterm_score" name="midterm_score" min="0" max="100" value="75" class="styled-slider">
+                            <span class="value-display">75</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="stress_level">Self-Reported Stress Level (1-10)</label>
+                        <div class="slider-container">
+                            <input type="range" id="stress_level" name="stress_level" min="1" max="10" value="5" class="styled-slider">
+                            <span class="value-display">5</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="predict-btn">
+                        <i class="fa-solid fa-microchip"></i> Analyze Risk
+                    </button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card result-section glass-panel">
+                <h2><i class="fa-solid fa-clipboard-check"></i> Burnout Analysis</h2>
+                
+                <div class="result-display" id="result-display">
+                    <div class="placeholder-content">
+                        <div class="pulse-icon"><i class="fa-solid fa-brain"></i></div>
+                        <p>Adjust the inputs and click "Analyze Risk" to run real-time inference on the machine learning model.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Floating Chatbot Widget -->
+    <button id="chat-fab" class="chat-fab hidden">
+        <i class="fa-solid fa-message"></i>
+    </button>
+
+    <div id="chat-window" class="chat-window hidden glass-panel">
+        <div class="chat-header">
+            <h3><i class="fa-solid fa-robot"></i> AI Planner Assistant</h3>
+            <button id="close-chat" class="close-chat-btn"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-bubble ai-bubble">
+                Hi! Generate a plan first, then ask me to tweak it (e.g. "Add a workout").
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="e.g., Let me sleep more...">
+            <button id="send-chat" class="send-chat-btn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="close-modal">&times;</span>
+            <h2 id="auth-title">Log In</h2>
+            <input type="text" id="auth-username" placeholder="Username" class="auth-input">
+            <input type="password" id="auth-password" placeholder="Password" class="auth-input">
+            <button id="btn-submit-auth" class="btn btn-primary">Log In</button>
+            <p id="auth-toggle-text">Don't have an account? <span id="btn-toggle-auth" class="text-link">Register</span></p>
+            <div id="auth-error" class="hidden auth-error-msg"></div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
